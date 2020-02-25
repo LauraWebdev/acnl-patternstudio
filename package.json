@@ -1,0 +1,27 @@
+{
+  "name": "acnl-patternstudio",
+  "version": "0.1.0",
+  "main": "main.js",
+  "description": "Animal Pattern Studio",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "acnl",
+    "animal",
+    "crossing",
+    "ac",
+    "pattern",
+    "animal",
+    "crossing",
+    "patterns",
+    "pattern",
+    "studio",
+    "aps"
+  ],
+  "author": "Andreas Heimann",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^8.0.1"
+  }
+}
