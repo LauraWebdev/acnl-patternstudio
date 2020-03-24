@@ -9,22 +9,34 @@
       <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
 
       <!-- Styles -->
+      <link rel="stylesheet" href="assets/css/debug.css" />
     </head>
     <body>
         <p>Animal Pattern Studio</p>
-        <button class="debug_load">Load ACNL File</button>
-        <hr/>
-        <b>Info</b><br />
-        Title: <span class="debug_title"></span><br />
-        Creator: <span class="debug_creator"></span><br />
-        Town: <span class="debug_town"></span><br />
-        Type: <span class="debug_type"></span>
-        <hr />
+        <div class="debug_grid">
+          <div>
+            <button class="debug_loadacnl">Load ACNL File</button>
+            <hr/>
+            <b>Info</b><br />
+            Title: <span class="debug_title"></span><br />
+            Creator: <span class="debug_creator"></span><br />
+            Town: <span class="debug_town"></span><br />
+            Type: <span class="debug_type"></span>
+            <hr />
 
-        <canvas class="debug_canvas" style="width: 128px; height: 128px; image-rendering: pixelated; border: 1px solid black;"></canvas>
+            <div class="drawingBoard"> 
+              <canvas class="debug_canvasboard" style="width: 256px; height: 256px; image-rendering: pixelated;"></canvas>
+            </div>
+            <div class="debug_palette" style="display: grid; border: 1px solid black; grid-template-columns: repeat(15, 1fr); padding: 0px; width: 100%; height: 16px;"></div>
+          </div>
+          <div>
+            <button class="debug_loadimage">Load QRCode Image</button>
+            <button class="debug_saveimage">Save QRCode Image</button>
 
-        <div class="debug_palette" style="display: flex; border: 1px solid black; width: 240px; height: 16px;">
+            <hr />
 
+            <canvas class="debug_canvaspreview" style="width: 128px; height: 128px; image-rendering: pixelated; border: 1px solid black;"></canvas>
+          </div>
         </div>
 
         <!-- Scripts -->

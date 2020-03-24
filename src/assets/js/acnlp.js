@@ -1,10 +1,33 @@
+// Huge thanks to Thulinma and DamSenViet for their projects and research of the binary data
+// Initialization: new ACNLP(data);
+
 class ACNLP {
     constructor(_data) {
-        this.data = _data;
+        if(this.validateData(_data)) {
+            this.data = _data;
+        } else {
+            console.error("Data Validation Failed.");
+            return;
+        }
     }
-
+    validateData(_data) {
+        if(_data instanceof Buffer || typeof _data == "object") {
+            if(_data.byteLength == 620 || _data.length == 620) {
+                return true;
+            } else {
+                console.error("Data is not valid (Length is not 620 bytes)");
+                console.error("Data Byte Length: " + _data.byteLength);
+                console.error("Data Object Length: " + _data.length);
+                return false;
+            }
+        } else {
+            console.error("Data is not valid (Not a Buffer[])");
+            console.error("Data is: " + typeof _data);
+            return false;
+        }
+    }
     getTitle(){
-        return this.read(0, 40);
+        return this.read(0, 40); 
     }
     getCreator(){
         return this.read(0x2c, 20);
@@ -40,12 +63,15 @@ class ACNLP {
     getType() {
       return this.data[0x69];
     }
+
+    // Get a color based on its index (0 - 15) in the palette
     getColor(_colorIndex) {
         let colorFromPalette = this.data[0x58 + _colorIndex];
         let color = this.getHexColor(colorFromPalette);
         return color;
     }
 
+    // Draw the entire pattern
     draw(_canvasCtx, _pattern) {
         console.log("Draw!");
 
@@ -55,25 +81,29 @@ class ACNLP {
         _canvasCtx.fillStyle = "rgba(255,255,255,1)";
         _canvasCtx.fillRect(0, 0, 512, 512);
 
-        let x = 0;
-        let y = 0;
-
+        // Each Pattern is 512 bytes long
         for (var i = 0; i < 512; i++){
-            x++;
-
-            if(x == 32) {
-                y++;
-                x = 0;
-            }
-
-            let dataByte = this.data[this.getPatternOffset(_pattern) + i];
-            let pixelColor = this.getColor(dataByte);
+            // Every Byte within a pattern contains 2 values between 0 and 15 representing the index in the current palette
+            // Big thanks to DamSenViet for their comments in their React port of the original Animal Crossing New Leaf Pattern Tool by Thulinma
+            // https://github.com/DamSenViet/react-acnl-pattern-tool/blob/master/src/EditorCanvas.jsx
+            let pixelPair = this.data[this.getPatternOffset(_pattern) + i];
+            let firstColor = this.getColor(pixelPair & 0x0F);
+            let secondColor = this.getColor(pixelPair >> 4);
             
-            _canvasCtx.fillStyle = pixelColor;
-            _canvasCtx.fillRect(x, y, 1, 1);
+            this.drawColor(_canvasCtx, i * 2, firstColor);
+            this.drawColor(_canvasCtx, i * 2 + 1, secondColor);
         }
     }
 
+    // Draw a color at a certain offset
+	drawColor(_canvasCtx, _offset, _color) {
+		let x = (_offset % 32);
+		let y = Math.floor(_offset / 32);
+        _canvasCtx.fillStyle = _color;
+        _canvasCtx.fillRect(x, y, 1, 1);
+	}
+
+    // Get the offset in the data bytearray based on the pattern number
     getPatternOffset(_pattern) {
         switch(_pattern) {
             case 0:
@@ -88,6 +118,7 @@ class ACNLP {
         }
     }
 
+    // Byte to HexColor Index
     getHexColor(_color) {
         switch (_color) {
         //pinks
@@ -290,7 +321,7 @@ class ACNLP {
         }
     }
 
-    // Helfer Function: Writing a single byte value
+    // Helper Function: Writing a single byte value
     writeByte(_offset, _value){
         for(let i = 0; 0 < _value.length; i++) {
             this.data[_offset + i] = _value[i];

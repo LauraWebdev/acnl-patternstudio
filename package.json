@@ -23,5 +23,9 @@
   "license": "MIT",
   "devDependencies": {
     "electron": "^8.0.1"
+  },
+  "dependencies": {
+    "jimp": "^0.9.3",
+    "jsqr": "^1.2.0"
   }
 }
