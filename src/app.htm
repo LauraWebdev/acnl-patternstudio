@@ -9,37 +9,140 @@
       <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
 
       <!-- Styles -->
-      <link rel="stylesheet" href="assets/css/debug.css" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" />
+      <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.0.45/css/materialdesignicons.min.css" />
+      <link rel="stylesheet" href="assets/css/main.css" />
+      <link rel="stylesheet" href="assets/css/creator.css" />
+      <link rel="stylesheet" href="assets/css/exporter.css" />
     </head>
     <body>
-        <p>Animal Pattern Studio</p>
-        <div class="debug_grid">
-          <div>
-            <button class="debug_loadacnl">Load ACNL File</button>
-            <hr/>
-            <b>Info</b><br />
-            Title: <span class="debug_title"></span><br />
-            Creator: <span class="debug_creator"></span><br />
-            Town: <span class="debug_town"></span><br />
-            Type: <span class="debug_type"></span>
-            <hr />
+      <section class="section-startup active">
+        <div class="logo">
+          <img src="assets/img/logo.svg" />
+        </div>
 
-            <div class="drawingBoard"> 
-              <canvas class="debug_canvasboard" style="width: 256px; height: 256px; image-rendering: pixelated;"></canvas>
+        <div class="loading">
+          <div class="state"></div>
+        </div>
+      </section>
+      <section class="section-creator">
+        <div class="toolbar">
+            <div class="menu">
+              <div class="toolbar-item" onclick="openMenu()"><i class="mdi mdi-menu"></i></div>
             </div>
-            <div class="debug_palette" style="display: grid; border: 1px solid black; grid-template-columns: repeat(15, 1fr); padding: 0px; width: 100%; height: 16px;"></div>
+
+            <div class="tools">
+              <div class="toolbar-item active" onclick="changeCurrentTool(0);"><i class="mdi mdi-cursor-move"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(1);"><i class="mdi mdi-pen"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(2);"><i class="mdi mdi-eraser"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(3);"><i class="mdi mdi-eyedropper"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(4);"><i class="mdi mdi-checkbox-blank"></i></div>
+            </div>
+        </div>
+        <div class="sub-toolbar active">
+          <div class="active-tool"><i class="mdi mdi-cursor-move"></i></div>
+          <div class="divider"></div>
+        </div>
+        <div class="sub-toolbar">
+          <div class="active-tool"><i class="mdi mdi-pen"></i></div>
+          <div class="divider"></div>
+        </div>
+        <div class="sub-toolbar">
+          <div class="active-tool"><i class="mdi mdi-eraser"></i></div>
+          <div class="divider"></div>
+        </div>
+        <div class="sub-toolbar">
+          <div class="active-tool"><i class="mdi mdi-eyedropper"></i></div>
+          <div class="divider"></div>
+        </div>
+        <div class="sub-toolbar">
+          <div class="active-tool"><i class="mdi mdi-checkbox-blank"></i></div>
+          <div class="divider"></div>
+        </div>
+        <div class="viewer">
+          <div class="pattern">
+            <div class="pixel-grid"></div>
+            <canvas class="pattern-canvas"></canvas>
           </div>
-          <div>
-            <button class="debug_loadimage">Load QRCode Image</button>
-            <button class="debug_saveimage">Save QRCode Image</button>
-
-            <hr />
-
-            <canvas class="debug_canvaspreview" style="width: 128px; height: 128px; image-rendering: pixelated; border: 1px solid black;"></canvas>
+          <div class="color-palette">
+            <div class="palette">
+              <div class="icon"><i class="mdi mdi-palette"></i></div>
+              <div class="divider"></div>
+              <div class="colors">
+                <div onclick="selectColor(0);" class="color selected" style="background: #d33b30;"></div>
+                <div onclick="selectColor(1);" class="color" style="background: #da7d3a;"></div>
+                <div onclick="selectColor(2);" class="color" style="background: #e5e44e;"></div>
+                <div onclick="selectColor(3);" class="color" style="background: #93e14f;"></div>
+                <div onclick="selectColor(4);" class="color" style="background: #3f8928;"></div>
+                <div onclick="selectColor(5);" class="color" style="background: #5bb7d0;"></div>
+                <div onclick="selectColor(6);" class="color" style="background: #4a91cf;"></div>
+                <div onclick="selectColor(7);" class="color" style="background: #3442d9;"></div>
+                <div onclick="selectColor(8);" class="color" style="background: #8253e1;"></div>
+                <div onclick="selectColor(9);" class="color" style="background: #d765c5;"></div>
+                <div onclick="selectColor(10);" class="color" style="background: #dfab9d;"></div>
+                <div onclick="selectColor(11);" class="color" style="background: #845140;"></div>
+                <div onclick="selectColor(12);" class="color" style="background: #e7e5e6;"></div>
+                <div onclick="selectColor(13);" class="color" style="background: #6d6f6c;"></div>
+                <div onclick="selectColor(14);" class="color" style="background: #000000;"></div>
+                <div onclick="selectColor(15);" class="color" style="background: url('assets/img/transparent.png');"></div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Scripts -->
-        <script src="./assets/js/app.js"></script>
+        <section class="section-menu">
+          <div class="menu">
+            <div class="brand">
+              <img src="assets/img/logo.svg" />
+            </div>
+
+            <nav>
+              <div class="menu-item" onclick="MenuNewPattern()">
+                <div class="icon"><i class="mdi mdi-file-outline"></i></div>
+                <div class="text">New pattern</div>
+              </div>
+              <div class="menu-item" onclick="MenuOpenBinary()">
+                <div class="icon"><i class="mdi mdi-folder-outline"></i></div>
+                <div class="text">Open .acnl file</div>
+              </div>
+              <div class="menu-item" onclick="MenuLoadQRImage()">
+                <div class="icon"><i class="mdi mdi-qrcode-scan"></i></div>
+                <div class="text">Open QR code image</div>
+              </div>
+
+              <div class="menu-spacer"></div>
+
+              <div class="menu-item" onclick="MenuSaveBinary()">
+                <div class="icon"><i class="mdi mdi-content-save-outline"></i></div>
+                <div class="text">Save .acnl file</div>
+              </div>
+              <div class="menu-item" onclick="MenuExport()">
+                <div class="icon"><i class="mdi mdi-content-save-outline"></i></div>
+                <div class="text">Export</div>
+              </div>
+            </nav>
+          </div>
+          <div class="closeMenu" onclick="closeMenu()"></div>
+        </section>
+      </section>
+
+      <section class="section-exporter">
+        <img src="assets/img/patternExportTemplate.png" class="patternExportTemplate" />
+        <div class="content">
+          <img class="exporterPreview" src="assets/img/patternExportTemplate.png" />
+
+          <div class="message">Exported Successfully</div>
+
+          <div class="actions">
+            <button onclick="MenuCloseExporter()">Back</button>
+            <button onclick="MenuOpenExportedFIle()">Open</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scripts -->
+      <script src="./assets/js/toolbar.js"></script>
+      <script src="./assets/js/colorpalette.js"></script>
+      <script src="./assets/js/app.js"></script>
     </body>
   </html>

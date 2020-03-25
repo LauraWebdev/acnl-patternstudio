@@ -36,13 +36,13 @@ class ACNLP {
         return this.read(0x42, 20);
     }
     setTitle( _value ){
-        write(0, 20, _value);
+        this.write(0, 20, _value);
     }
     setCreator( _value ){
-        write(0x2c, 10, _value);
+        this.write(0x2c, 10, _value);
     }
     setTown( _value ){
-        write(0x42, 10, _value);
+        this.write(0x42, 10, _value);
     }
     getCreatorID(){
       return ((this.data[0x2A] << 8) + this.data[0x2B]).toString(16);
@@ -78,7 +78,7 @@ class ACNLP {
         // Clear Canvas
         _canvasCtx.canvas.width = 32;
         _canvasCtx.canvas.height = 32;
-        _canvasCtx.fillStyle = "rgba(255,255,255,1)";
+        _canvasCtx.fillStyle = "rgba(255,255,255,0)";
         _canvasCtx.fillRect(0, 0, 512, 512);
 
         // Each Pattern is 512 bytes long
@@ -98,9 +98,91 @@ class ACNLP {
     // Draw a color at a certain offset
 	drawColor(_canvasCtx, _offset, _color) {
 		let x = (_offset % 32);
-		let y = Math.floor(_offset / 32);
-        _canvasCtx.fillStyle = _color;
-        _canvasCtx.fillRect(x, y, 1, 1);
+        let y = Math.floor(_offset / 32);
+
+        if(_color == 15) {
+            _canvasCtx.clearRect(x, y, 1, 1);
+        } else {
+            _canvasCtx.fillStyle = _color;
+            _canvasCtx.fillRect(x, y, 1, 1);
+        }
+    }
+    
+    colorPixel(_canvasCtx, _x, _y, _colorIndex) {
+        let pixelColor = this.getColor(_colorIndex);
+
+        if(_colorIndex == 15) {
+            _canvasCtx.clearRect(_x, _y, 1, 1);
+        } else {
+            _canvasCtx.fillStyle = pixelColor;
+            _canvasCtx.fillRect(_x, _y, 1, 1);
+        }
+
+        this.updatePixel(_x, _y, _colorIndex);
+    }
+
+	updatePixel(x, y, chosenColor) {
+		if (chosenColor < 0 || chosenColor > 16) {
+			throw new Error("invalid chosen color");
+		}
+
+		if (
+			isNaN(x) ||
+			isNaN(y) ||
+			x < 0 ||
+			y < 0 ||
+			x > 63 ||
+			y > 63
+		) return false;
+
+		if (
+			this.data.length !== 0x870 &&
+			(x > 31 || y > 31)
+		) return false;
+
+		// each "pixel" in the pattern is only half a byte (colors are 0-14)
+		// since each pattern is 32 x 32, we need only 16 bytes in width
+		// to represent a row of the pattern, y * 16 allows us to skip rows
+		// x assumes that you can get pixels from 0 -> 64 in this situation
+		// to get column, we need to x/2
+
+		// reminder that this is a port, will have to refactor this to only color
+		// pixels in specific patterns in the future
+
+		// determine pattern quadrant
+
+		let patternNum;
+		// top left -> pattern 1
+		if (x <= 31 && y <= 31) patternNum = 0;
+		// bottom left -> pattern 2
+		else if (x <= 31 && y <= 63) patternNum = 1;
+		// top right -> pattern 3
+		else if (x <= 63 && y <= 31) patternNum = 2;
+		// bottom right -> pattern 4
+		else if (x <= 63 && y <= 63) patternNum = 3;
+
+		let offset = 0x6C + Math.floor(x % 32 / 2) + (y % 32) * 16;
+		// correct offset based on quadrant
+		offset += (patternNum * 512);
+		// console.log(offset.toString(16));
+
+		// need to make sure we don't override other pixels
+		let val = this.data[offset] & 0xFF;
+		let oldval = val;
+		if ((x % 2) === 1) {
+			// keep last half, replace first half with chosen color
+			val = (val & 0x0F) + (chosenColor << 4);
+		} else {
+			// keep first half, replace second half with chosen color
+			val = (val & 0xF0) + chosenColor;
+		}
+
+		if (val === oldval) {
+			return false;
+		}
+
+		this.writeByte(offset, val);
+		return true;
 	}
 
     // Get the offset in the data bytearray based on the pattern number
@@ -313,6 +395,9 @@ class ACNLP {
         case 0xCF: return "#242424";
         case 0xDF: return "#121212";
         case 0xEF: return "#000000";
+
+        //transparency
+        case 0xCC: return "transparent";
       
         default:
             //0x?9 - 0x?E aren't used. Not sure what they do in-game. Can somebody test this?
@@ -322,10 +407,8 @@ class ACNLP {
     }
 
     // Helper Function: Writing a single byte value
-    writeByte(_offset, _value){
-        for(let i = 0; 0 < _value.length; i++) {
-            this.data[_offset + i] = _value[i];
-        }
+    writeByte(_offset, _value) {
+        this.data[_offset] = _value;
     }
     // Helper Function: Reading from an offset
     read(_offset, _length){
@@ -348,6 +431,9 @@ class ACNLP {
                 this.writeByte(_offset + i*2+1, (_value[i] >> 8) & 0xFF);
             }
         }
+    }
+    getData() {
+        return this.data;
     }
 }
 
