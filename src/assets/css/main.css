@@ -19,3 +19,18 @@ body {
   overflow: hidden;
   font-family: 'Open Sans', sans-serif;
 }
+.tooltip {
+  background: #000;
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 4px;
+  position: absolute;
+  z-index: 100;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: none;
+}
+.tooltip.active {
+  display: block;
+}

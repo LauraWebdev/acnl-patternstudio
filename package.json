@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "jimp": "^0.9.3",
+    "jimp-canvas": "^0.1.1",
     "jsqr": "^1.2.0",
     "qrcode": "^1.4.4"
   }

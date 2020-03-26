@@ -14,6 +14,7 @@
       <link rel="stylesheet" href="assets/css/main.css" />
       <link rel="stylesheet" href="assets/css/creator.css" />
       <link rel="stylesheet" href="assets/css/exporter.css" />
+      <link rel="stylesheet" href="assets/css/converter.css" />
     </head>
     <body>
       <section class="section-startup active">
@@ -28,15 +29,16 @@
       <section class="section-creator">
         <div class="toolbar">
             <div class="menu">
-              <div class="toolbar-item" onclick="openMenu()"><i class="mdi mdi-menu"></i></div>
+              <div class="toolbar-item" onclick="openMenu()" data-tooltip="Menu"><i class="mdi mdi-menu"></i></div>
             </div>
 
             <div class="tools">
-              <div class="toolbar-item active" onclick="changeCurrentTool(0);"><i class="mdi mdi-cursor-move"></i></div>
-              <div class="toolbar-item" onclick="changeCurrentTool(1);"><i class="mdi mdi-pen"></i></div>
-              <div class="toolbar-item" onclick="changeCurrentTool(2);"><i class="mdi mdi-eraser"></i></div>
-              <div class="toolbar-item" onclick="changeCurrentTool(3);"><i class="mdi mdi-eyedropper"></i></div>
-              <div class="toolbar-item" onclick="changeCurrentTool(4);"><i class="mdi mdi-checkbox-blank"></i></div>
+              <div class="toolbar-item active" onclick="changeCurrentTool(0);" data-tooltip="Move"><i class="mdi mdi-cursor-move"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(1);" data-tooltip="Pen"><i class="mdi mdi-pen"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(2);" data-tooltip="Eraser"><i class="mdi mdi-eraser"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(3);" data-tooltip="Eyedropper"><i class="mdi mdi-eyedropper"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(4);" data-tooltip="Fill"><i class="mdi mdi-checkbox-blank"></i></div>
+              <div class="toolbar-item" onclick="changeCurrentTool(5);" data-tooltip="Information"><i class="mdi mdi-passport"></i></div>
             </div>
         </div>
         <div class="sub-toolbar active">
@@ -58,6 +60,24 @@
         <div class="sub-toolbar">
           <div class="active-tool"><i class="mdi mdi-checkbox-blank"></i></div>
           <div class="divider"></div>
+        </div>
+        <div class="sub-toolbar">
+          <div class="active-tool"><i class="mdi mdi-passport"></i></div>
+          <div class="divider"></div>
+          <div class="items">
+            <div class="item">
+              <div class="text">Title</div>
+              <input type="text" onchange="UpdateTitle()" class="pattern-title" placeholder="Title" />
+            </div>
+            <div class="item">
+              <div class="text">Creator</div>
+              <input type="text" onchange="UpdateCreator()" class="pattern-creator" placeholder="Creator" />
+            </div>
+            <div class="item">
+              <div class="text">Town</div>
+              <input type="text" onchange="UpdateTown()" class="pattern-town" placeholder="Town" />
+            </div>
+          </div>
         </div>
         <div class="viewer">
           <div class="pattern">
@@ -109,6 +129,10 @@
                 <div class="icon"><i class="mdi mdi-qrcode-scan"></i></div>
                 <div class="text">Open QR code image</div>
               </div>
+              <div class="menu-item" onclick="MenuConvertImage()">
+                <div class="icon"><i class="mdi mdi-image-move"></i></div>
+                <div class="text">Convert image</div>
+              </div>
 
               <div class="menu-spacer"></div>
 
@@ -119,6 +143,12 @@
               <div class="menu-item" onclick="MenuExport()">
                 <div class="icon"><i class="mdi mdi-content-save-outline"></i></div>
                 <div class="text">Export</div>
+              </div>
+
+              <div class="menu-spacer"></div>
+              <div class="menu-item" onclick="MenuAbout()">
+                <div class="icon"><i class="mdi mdi-information-outline"></i></div>
+                <div class="text">About</div>
               </div>
             </nav>
           </div>
@@ -139,6 +169,19 @@
           </div>
         </div>
       </section>
+
+      <section class="section-converter">
+        <h1>CONVERTING</h1>
+        <img src="" class="converter-preview converter-preview-original" /><br />
+        <img src="" class="converter-preview converter-preview-median" /><br />
+        <img src="" class="converter-preview converter-preview-rgb" /><br />
+        <img src="" class="converter-preview converter-preview-yuv" /><br />
+        <img src="" class="converter-preview converter-preview-greyscale" /><br />
+        <img src="" class="converter-preview converter-preview-sepia" /><br /><br />
+        Select the best looking
+      </section>
+
+      <div class="tooltip">Lorem Ipsum</div>
 
       <!-- Scripts -->
       <script src="./assets/js/toolbar.js"></script>

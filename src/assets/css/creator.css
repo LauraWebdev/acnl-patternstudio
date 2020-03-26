@@ -154,6 +154,40 @@
   align-self: center;
   border-radius: 2px;
 }
+.section-creator .sub-toolbar .items {
+  display: flex;
+}
+.section-creator .sub-toolbar .items .item {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 10px;
+  margin-left: 20px;
+}
+.section-creator .sub-toolbar .items .item .text {
+  justify-self: center;
+  align-self: center;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.section-creator .sub-toolbar .items .item input {
+  align-self: center;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  padding: 5px 10px;
+  color: #fff;
+  font-family: 'Open Sans', sans-serif;
+  width: 200px;
+  transition: 0.2s ease all;
+}
+.section-creator .sub-toolbar .items .item input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.section-creator .sub-toolbar .items .item input:focus {
+  outline: 0;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
 .section-creator .viewer {
   position: relative;
 }

@@ -9,6 +9,10 @@ let currentPattern;
 let patternCanvas = document.querySelector(".pattern-canvas");
 let patternColors = document.querySelectorAll(".color-palette .colors .color");
 
+let DOMpatternTitle = document.querySelector(".pattern-title");
+let DOMpatternCreator = document.querySelector(".pattern-creator");
+let DOMpatternTown = document.querySelector(".pattern-town");
+
 // Load Empty On Startup
 fs.readFile("src/assets/empty.acnl", (err, data)=> {
     if(err) {
@@ -20,11 +24,15 @@ fs.readFile("src/assets/empty.acnl", (err, data)=> {
 
     setTimeout(function() {
         hideStartup();
-    }, 5000);
+    }, 0);
 });
 
 function LoadPattern(_data) {
     currentPattern = new ACNLP(_data);
+
+    DOMpatternTitle.value = currentPattern.getTitle();
+    DOMpatternCreator.value = currentPattern.getCreator();
+    DOMpatternTown.value = currentPattern.getTown();
 
     currentPattern.draw(patternCanvas.getContext('2d'), 0);
     for(let i = 0; i < 15; i++) {
@@ -37,6 +45,7 @@ function LoadPattern(_data) {
 let DOMsectionStartup = document.querySelector(".section-startup");
 let DOMsectionCreator = document.querySelector(".section-creator");
 let DOMsectionExporter = document.querySelector(".section-exporter");
+let DOMsectionConverter = document.querySelector(".section-converter");
 
 function hideStartup() {
     DOMsectionStartup.classList.remove("active");
@@ -109,6 +118,29 @@ function MenuLoadQRImage() {
     });
 }
 
+let DOMconverterPreviewOriginal = document.querySelector(".converter-preview-original");
+let DOMconverterPreviewMedian = document.querySelector(".converter-preview-median");
+let DOMconverterPreviewRGB = document.querySelector(".converter-preview-rgb");
+let DOMconverterPreviewYUV = document.querySelector(".converter-preview-yuv");
+let DOMconverterPreviewGreyscale = document.querySelector(".converter-preview-greyscale");
+let DOMconverterPreviewSepia = document.querySelector(".converter-preview-sepia");
+function MenuConvertImage() {
+    closeMenu();
+
+    dialog.showOpenDialog({ title: "Open image", properties: ['openFile'], filters: [{"name": "Image", "extensions": ["png", "jpeg", "jpg"]}] }).then(result => {
+        if(!result.canceled) {
+            let filePath = result.filePaths[0];
+
+            Jimp.read(filePath).then(function(image) {
+                DOMsectionCreator.classList.remove("active");
+                DOMsectionConverter.classList.add("active");
+
+                console.log(convertToRGB(image));
+            });
+        }
+    });
+}
+
 // Savers
 function MenuExport() {
     dialog.showSaveDialog({ title: "Save QR Code Image", filters: [{"name": "PNG Image", "extensions": ["png"]}]}).then(result => {
@@ -143,20 +175,18 @@ let DOMviewer = document.querySelector(".viewer");
 let DOMviewerPattern = document.querySelector(".viewer .pattern");
 let currentZoomLevel = 8;
 
-// Tool 0
+// Zoom
 DOMviewer.addEventListener('wheel', function(event) {
-    if(currentTool == 0) {
-        if (event.deltaY < 0) {
-            currentZoomLevel++;
-        }
-        else if (event.deltaY > 0) {
-            if(currentZoomLevel - 1 > 0) {
-                currentZoomLevel--;
-            }
-        }
-
-        rescalePattern();
+    if (event.deltaY < 0) {
+        currentZoomLevel++;
     }
+    else if (event.deltaY > 0) {
+        if(currentZoomLevel - 1 > 0) {
+            currentZoomLevel--;
+        }
+    }
+
+    rescalePattern();
 });
 
 function rescalePattern() {
@@ -176,6 +206,12 @@ DOMviewerPattern.addEventListener('click', function(event) {
 
         currentPattern.colorPixel(patternCanvas.getContext('2d'), posX, posY, currentColor);
     }
+    if(currentTool == 2) {
+        let posX = Math.floor(event.offsetX / currentZoomLevel);
+        let posY = Math.floor(event.offsetY / currentZoomLevel);
+
+        currentPattern.colorPixel(patternCanvas.getContext('2d'), posX, posY, 15);
+    }
     if(currentTool == 4) {
         for(let x = 0; x < 32; x++) {
             for(let y = 0; y < 32; y++) {
@@ -185,12 +221,12 @@ DOMviewerPattern.addEventListener('click', function(event) {
     }
 });
 DOMviewerPattern.addEventListener('mousedown', function(event) {
-    if(currentTool == 1) {
+    if(currentTool == 1 || currentTool == 2) {
         isDrawing = true;
     }
 });
 DOMviewerPattern.addEventListener('mouseup', function(event) {
-    if(currentTool == 1) {
+    if(currentTool == 1 || currentTool == 2) {
         isDrawing = false;
     }
 });
@@ -201,12 +237,18 @@ DOMviewerPattern.addEventListener('mousemove', function(event) {
 
         currentPattern.colorPixel(patternCanvas.getContext('2d'), posX, posY, currentColor);
     }
+    if(currentTool == 2 && isDrawing) {
+        let posX = Math.floor(event.offsetX / currentZoomLevel);
+        let posY = Math.floor(event.offsetY / currentZoomLevel);
+
+        currentPattern.colorPixel(patternCanvas.getContext('2d'), posX, posY, 15);
+    }
 });
 
 // Exporter
 let DOMpatternExportTemplate = document.querySelector(".patternExportTemplate");
-let DOMpatternExportQRHolder = document.createElement("canvas");
 let DOMpatternExport = document.createElement("canvas");
+let DOMpatternExportQRHolder = document.createElement("canvas");
 let DOMpatternExportPreview = document.querySelector(".exporterPreview");
 let exportLocation = "";
 
@@ -241,7 +283,13 @@ function ExportPattern(_location) {
     DOMpatternCtx.drawImage(patternCanvas, 580, 155, 230, 230);
 
     // QR COde
-    QRWriter.toCanvas(DOMpatternExportQRHolder, [{data: currentPattern.getData(), mode: 'byte'}]);
+    var opts = {
+        version: 19,
+        errorCorrectionLevel: 'M',
+        scale: 4
+    };
+    QRWriter.toCanvas(DOMpatternExportQRHolder, [{ data: currentPattern.getData(), mode: 'byte'}], opts);
+
     DOMpatternCtx.drawImage(DOMpatternExportQRHolder, 90, 145, 425, 425);
 
     // Export as Image
@@ -259,74 +307,50 @@ function MenuOpenExportedFIle() {
     shell.openItem(exportLocation);
 }
 
-
-// DEBUG
-/*
-let debugCanvasPreview = document.querySelector("canvas.debug_canvaspreview");
-let debugCanvasBoard = document.querySelector("canvas.debug_canvasboard");
-
-let debugTitle = document.querySelector(".debug_title");
-let debugCreator = document.querySelector(".debug_creator");
-let debugTown = document.querySelector(".debug_town");
-let debugType = document.querySelector(".debug_type");
-let debugPalette = document.querySelector(".debug_palette");
-
-let debugSaveImageButton = document.querySelector("button.debug_saveimage"); */
-
-
-
-/* INIT */
-/*
-buttonNew.addEventListener('click', function() {
-
-    loadSection(sectionCreator);
-});
-
-buttonLoadACNL.addEventListener('click', function() {
-});
-
-buttonLoadQRCode.addEventListener('click', function() {
-}); */
-
-/* CREATOR */
-/* 
-buttonBack.addEventListener('click', function() {
-    loadSection(sectionInit);
-});
-function LoadData(_data) {
-    currentPattern = new ACNLP(_data);
-
-    loadSection(sectionCreator);
-
-    // Set Info
-    debugTitle.innerHTML = currentPattern.getTitle();
-    debugCreator.innerHTML = currentPattern.getCreator();
-    debugTown.innerHTML = currentPattern.getTown();
-    debugType.innerHTML = currentPattern.getType();
-
-    // Draw Canvas
-    currentPattern.draw(debugCanvasBoard.getContext('2d'), 0);
-    currentPattern.draw(debugCanvasPreview.getContext('2d'), 0);
-
-    debugPalette.innerHTML = "";
-    for(let i = 0; i < 16; i++) {
-        let newPaletteItem = document.createElement("div");
-        let color = currentPattern.getColor(i);
-        newPaletteItem.style.backgroundColor = color;
-        newPaletteItem.innerHTML = (0x58 + i).toString(16);
-        newPaletteItem.style.color = getContrastYIQ(color);
-
-        debugPalette.appendChild(newPaletteItem);
-    }
+function UpdateTitle() {
+    let newTitle = DOMpatternTitle.value.slice(0, 9);
+    console.log("Changing Title: " + newTitle);
+    currentPattern.setTitle(newTitle);
 }
-debugSaveImageButton.addEventListener('click', function() {
-});
+function UpdateCreator() {
+    let newCreator = DOMpatternCreator.value.slice(0, 9);
+    console.log("Changing Creator: " + newCreator);
+    currentPattern.setCreator(newCreator);
+}
+function UpdateTown() {
+    let newTown = DOMpatternTown.value.slice(0, 9);
+    console.log("Changing Town: " + newTown);
+    currentPattern.setTown(newTown);
+}
 
-function getContrastYIQ(hexcolor){
-    hexcolor = hexcolor.replace("#", "");
-    var r = parseInt(hexcolor.substr(0,2),16);
-    var g = parseInt(hexcolor.substr(2,2),16);
-    var b = parseInt(hexcolor.substr(4,2),16);
-    var yiq = ((r*299)+(g*587)+(b*114))/1000;
-    return (yiq >= 128) ? 'black' : 'white';
-} */
+// Converters
+function imageToArrayData(_imgData) {
+    _imgData.resize(32, 32);
+
+    let width = _imgData.bitmap.width;
+    let height = _imgData.bitmap.height;
+    let imageData = [];
+
+    for(let x = 0; x < width; x++) {
+        imageData[x] = [];
+
+        for(let y = 0; y < height; y++) {
+            let color = _imgData.getPixelColor(x, y).toString(16);
+
+            let hex = color.slice(0, -2);
+            let transparency = color.slice(-2);
+            
+            if(transparency == "ff") {
+                imageData[x][y] = hex;
+            } else {
+                imageData[x][y] = "transparent";
+            }
+        }
+    }
+    
+    return imageData;
+}
+function convertToRGB(_imgData) {
+    let imgArray = imageToArrayData(_imgData);
+    return imgArray;
+}
