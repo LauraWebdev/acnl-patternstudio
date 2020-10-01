@@ -193,10 +193,6 @@
 }
 .section-creator .viewer .pattern {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: -128px;
-  margin-top: -128px;
   width: 256px;
   height: 256px;
   background: url('../img/transparent.png');
@@ -212,6 +208,12 @@
   image-rendering: pixelated;
   width: 100%;
   height: 100%;
+}
+.section-creator .viewer .pattern.centered {
+  left: 50% !important;
+  top: 50% !important;
+  margin-left: -128px;
+  margin-top: -128px;
 }
 .section-creator .viewer .color-palette {
   position: absolute;
