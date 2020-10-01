@@ -193,8 +193,10 @@ function rescalePattern() {
     DOMviewerPattern.style.width = 32 * currentZoomLevel + "px";
     DOMviewerPattern.style.height = 32 * currentZoomLevel + "px";
 
-    DOMviewerPattern.style.marginLeft = "-" + (32 * currentZoomLevel) / 2 + "px";
-    DOMviewerPattern.style.marginTop = "-" + (32 * currentZoomLevel) / 2 + "px";
+    if(DOMviewerPattern.classList.contains("centered")) {
+        DOMviewerPattern.style.marginLeft = "-" + (32 * currentZoomLevel) / 2 + "px";
+        DOMviewerPattern.style.marginTop = "-" + (32 * currentZoomLevel) / 2 + "px";
+    }
 }
 
 // Tool 1
@@ -244,6 +246,55 @@ DOMviewerPattern.addEventListener('mousemove', function(event) {
         currentPattern.colorPixel(patternCanvas.getContext('2d'), posX, posY, 15);
     }
 });
+
+let viewerMoving = false;
+let viewerX = 0;
+let viewerY = 0;
+let viewerAnimationFrame;
+document.addEventListener('keydown', function(event) {
+    if(currentTool == 0) {
+        if(event.code == "Space") {
+            viewerMoving = true;
+
+            DOMviewerPattern.classList.remove("centered");
+
+            DOMviewerPattern.style.marginLeft = "0px";
+            DOMviewerPattern.style.marginTop = "0px";
+    
+            viewerAnimationFrame = requestAnimationFrame(MoveViewer);
+        }
+    }
+});
+document.addEventListener('keyup', function(event) {
+    if(currentTool == 0) {
+        if(event.code == "Space") {
+            viewerMoving = false;
+            cancelAnimationFrame(viewerAnimationFrame);
+        }
+        if(event.code == "Numpad0") {
+            ResetViewerMovement();
+        }
+    }
+});
+document.addEventListener('mousemove', function(event) {
+    viewerX = event.clientX - ((32 * currentZoomLevel) / 2);
+    viewerY = event.clientY - 104 - ((32 * currentZoomLevel) / 2);
+});
+
+function MoveViewer() {
+    if(viewerMoving) {
+        DOMviewerPattern.style.top = viewerY + "px";
+        DOMviewerPattern.style.left = viewerX + "px";
+        
+        viewerAnimationFrame = requestAnimationFrame(MoveViewer);
+    }
+}
+function ResetViewerMovement() {
+    DOMviewerPattern.classList.add("centered");
+
+    currentZoomLevel = 8;
+    rescalePattern();
+}
 
 // Exporter
 let DOMpatternExportTemplate = document.querySelector(".patternExportTemplate");
