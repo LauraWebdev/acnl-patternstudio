@@ -22,7 +22,7 @@
   "author": "Andreas Heimann",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^8.5.2"
+    "electron": "^13.6.6"
   },
   "dependencies": {
     "jimp": "^0.9.8",
